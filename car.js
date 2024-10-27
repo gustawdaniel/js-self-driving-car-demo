@@ -10,6 +10,7 @@ class Car {
         this.maxSpeed = maxSpeed;
         this.friction = 0.05;
         this.angle = 0;
+        this.damaged = false;
 
         this.controlls = new Controls();
 
@@ -20,14 +21,32 @@ class Car {
     }
 
     update(roadBorders, traffic) {
-        this.polygon = this.#createPolygon();
-        this.#move();
+        if (!this.damaged) {
+            this.#move();
+            this.polygon = this.#createPolygon();
+            this.damaged = this.#assessDamage(roadBorders, traffic)
+        }
 
         if(this.sensor) {
             this.sensor.update(roadBorders, traffic);
 
         }
     }
+
+    #assessDamage(roadBorders, traffic) {
+        for (let i = 0; i < roadBorders.length; i++) {
+            if (polysIntersect(this.polygon, roadBorders[i])) {
+                return true;
+            }
+        }
+        for (let i = 0; i < traffic.length; i++) {
+            if (polysIntersect(this.polygon, traffic[i].polygon)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     #createPolygon() {
         const points = [];
@@ -92,7 +111,11 @@ class Car {
     }
 
     draw(ctx, color,drawSensors = false) {
-        ctx.fillStyle = color;
+        if (this.damaged) {
+            ctx.fillStyle = 'gray'
+        } else {
+            ctx.fillStyle = color
+        }
 
         ctx.beginPath();
         ctx.lineWidth = 0;

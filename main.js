@@ -25,12 +25,18 @@ function animate() {
 
     car.update(road.borders, traffic);
 
+    carCtx.save();
+    carCtx.translate(0, -car.y+ carCanvas.height*0.7);
+
     road.draw(carCtx);
 
     for(let i = 0; i<traffic.length; i++){
         traffic[i].draw(carCtx, "red");
     }
     car.draw(carCtx, 'blue', true);
+
+    carCtx.restore();
+
 
     requestAnimationFrame(animate)
 }
